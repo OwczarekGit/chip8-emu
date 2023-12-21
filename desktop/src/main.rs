@@ -37,7 +37,11 @@ fn main() {
     canvas.present();
 
     let mut ev_pump = ctx.event_pump().expect("Event pump");
-
+    
+    let mut save_states: [Option<Emulator>; 4] = [None; 4];
+    
+    let mut pause = false;
+    
     'main_loop: loop {
         for ev in ev_pump.poll_iter() {
             match ev {
@@ -56,12 +60,42 @@ fn main() {
                 Event::KeyUp {
                     keycode: Some(key), ..
                 } => {
+                    match key {
+                        Keycode::F1 => save_states[0] = Some(emu.snapshot()),
+                        Keycode::F2 => save_states[1] = Some(emu.snapshot()),
+                        Keycode::F3 => save_states[2] = Some(emu.snapshot()),
+                        Keycode::F4 => save_states[3] = Some(emu.snapshot()),
+                        _ => {}
+                    }
+
+                    let index = match key {
+                        Keycode::F5 => Some(0),
+                        Keycode::F6 => Some(1),
+                        Keycode::F7 => Some(2),
+                        Keycode::F8 => Some(4),
+                        _ => None
+                    };
+
+                    if let Some(i) = index {
+                        if let Some(state) = save_states[i] {
+                            emu = state;
+                        }
+                    }
+                    
+                    if key == Keycode::Space {
+                        pause = !pause;
+                    }
+
                     if let Some(k) = key_to_button(key) {
                         emu.keypress(k, false)
                     }
                 }
                 _ => {}
             }
+        }
+        
+        if pause {
+            continue;
         }
 
         for _ in 0..TICKS_PER_FRAME {
@@ -73,13 +107,13 @@ fn main() {
 }
 
 fn key_to_button(key: Keycode) -> Option<usize> {
-    return match key {
-        Keycode::Left => Some(0x5),
-        Keycode::Right => Some(0x6),
-        Keycode::Down => Some(0x7),
-        Keycode::Up => Some(0x4),
-        _ => None,
-    };
+    // return match key {
+    //     Keycode::Left => Some(0x5),
+    //     Keycode::Right => Some(0x6),
+    //     Keycode::Down => Some(0x7),
+    //     Keycode::Up => Some(0x4),
+    //     _ => None,
+    // };
 
     let x = match key {
         Keycode::Num1 => Some(0x1),
@@ -91,7 +125,7 @@ fn key_to_button(key: Keycode) -> Option<usize> {
         Keycode::E => Some(0x6),
         Keycode::R => Some(0xD),
         Keycode::A => Some(0x7),
-        Keycode::S => Some(0x7),
+        Keycode::S => Some(0x8),
         Keycode::D => Some(0x9),
         Keycode::F => Some(0xE),
         Keycode::Z => Some(0xA),
@@ -100,6 +134,7 @@ fn key_to_button(key: Keycode) -> Option<usize> {
         Keycode::V => Some(0xF),
         _ => None,
     };
+    x
 }
 
 fn draw_screen(emu: &Emulator, c: &mut Canvas<Window>) {

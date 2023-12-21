@@ -29,7 +29,7 @@ const FONTSET: [u8; FONTSET_SIZE] = [
     0xF0, 0x80, 0xF0, 0x80, 0x80, // F
 ];
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Emulator {
     ram: [u8; RAM_SIZE],
     reg: [u8; NUM_REGS],
@@ -44,6 +44,10 @@ pub struct Emulator {
 }
 
 impl Emulator {
+    pub fn snapshot(&self) -> Emulator {
+        *self
+    }
+
     pub fn display(&self) -> &[bool] {
         &self.screen
     }
