@@ -44,6 +44,28 @@ pub struct Emulator {
 }
 
 impl Emulator {
+    pub fn state_string(&self) -> String {
+        format!(
+            "[ V00: {:02X} V01: {:02X} V02: {:02X} V03: {:02X} ]\n[ V04: {:02X} V05: {:02X} V06: {:02X} V07: {:02X} ]\n[ V08: {:02X} V09: {:02X} V10: {:02X} V11: {:02X} ]\n[ V12: {:02X} V13: {:02X} V14: {:02X} V15: {:02X} ]",
+            self.reg[0],
+            self.reg[1],
+            self.reg[2],
+            self.reg[3],
+            self.reg[4],
+            self.reg[5],
+            self.reg[6],
+            self.reg[7],
+            self.reg[8],
+            self.reg[9],
+            self.reg[10],
+            self.reg[11],
+            self.reg[12],
+            self.reg[13],
+            self.reg[14],
+            self.reg[15],
+        )
+    }
+
     pub fn snapshot(&self) -> Emulator {
         *self
     }
@@ -122,7 +144,7 @@ impl Emulator {
         }
 
         if self.st > 0 {
-            if self.sp == 1 {
+            if self.st == 1 {
                 // BEEP!
             }
             self.st -= 1;
